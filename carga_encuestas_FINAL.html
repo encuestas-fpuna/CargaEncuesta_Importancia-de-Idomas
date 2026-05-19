@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carga de Encuestas — FDD Grupo 4 ✓ Sheets Conectado</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222;
+    --border: #2e2e2e;
+    --accent: #c8f135;
+    --accent2: #3bf0a0;
+    --text: #f0f0f0;
+    --muted: #666;
+    --error: #ff5252;
+    --success: #3bf0a0;
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .header-title { font-size: 14px; color: var(--muted); font-weight: 400; }
+  .encuesta-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(200,241,53,0.08);
+    border: 1px solid rgba(200,241,53,0.2);
+    padding: 4px 14px;
+    border-radius: var(--radius);
+    min-width: 80px;
+    text-align: center;
+  }
+  .encuesta-label { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; text-align:center; margin-top:2px; }
+
+  /* SETUP PANEL */
+  .setup-panel {
+    max-width: 560px;
+    margin: 60px auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+  }
+  .setup-panel h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .setup-panel p { color: var(--muted); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
+  .setup-panel label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; font-family: 'Space Mono', monospace; }
+  .setup-panel input, .setup-panel select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 18px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .setup-panel input:focus, .setup-panel select:focus { border-color: var(--accent); }
+  .btn-primary {
+    background: var(--accent);
+    color: #0f0f0f;
+    border: none;
+    padding: 12px 28px;
+    border-radius: var(--radius);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* MAIN FORM */
+  .main { max-width: 720px; margin: 0 auto; padding: 32px 24px; }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 40px;
+    animation: fadeUp 0.3s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* FIELD */
+  .field { margin-bottom: 22px; }
+  .field-label {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 8px;
+    font-weight: 500;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .field-code {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(200,241,53,0.08);
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+    margin-top: 1px;
+  }
+  input[type="text"], input[type="number"], select.field-select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, select.field-select:focus {
+    border-color: var(--accent);
+  }
+  select.field-select option { background: var(--surface); }
+
+  /* RADIO / CHECKBOX GROUPS */
+  .options-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .opt-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .opt-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .opt-btn.selected {
+    background: rgba(200,241,53,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* IDIOMA TABLA */
+  .idioma-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .idioma-card.active { border-color: var(--accent); }
+  .idioma-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    background: var(--surface2);
+  }
+  .idioma-check {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .idioma-check.checked { background: var(--accent); border-color: var(--accent); }
+  .idioma-check.checked::after { content: '✓'; font-size: 12px; color: #0f0f0f; font-weight: 700; }
+  .idioma-name { font-weight: 600; font-size: 14px; }
+  .idioma-codes { margin-left: auto; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+  .idioma-body {
+    padding: 16px;
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+  .idioma-body.visible { display: block; }
+  .idioma-row { margin-bottom: 14px; }
+  .idioma-row-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-family: 'Space Mono', monospace; }
+
+  /* OTRO INPUT */
+  .otro-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    width: 100%;
+    max-width: 280px;
+    outline: none;
+    margin-top: 6px;
+    display: none;
+  }
+  .otro-input.visible { display: block; }
+
+  /* CONDITIONAL */
+  .conditional-block {
+    display: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .conditional-block.visible { display: block; }
+
+  /* SUBMIT */
+  .submit-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .submit-info { font-size: 13px; color: var(--muted); }
+  .btn-submit {
+    background: var(--accent);
+    color: #0f0f0f;
+    border: none;
+    padding: 12px 32px;
+    border-radius: var(--radius);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .btn-submit:hover { opacity: 0.88; }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-reset {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--error); color: var(--error); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 72px; right: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13px;
+    max-width: 300px;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    z-index: 999;
+  }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-color: var(--success); color: var(--success); }
+  .toast.error { border-color: var(--error); color: var(--error); }
+
+  /* CONFIG MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 480px;
+    width: 90%;
+  }
+  .modal h3 { font-family: 'Space Mono', monospace; font-size: 15px; color: var(--accent); margin-bottom: 8px; }
+  .modal p { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
+  .modal input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .modal input:focus { border-color: var(--accent); }
+  .modal-btns { display: flex; gap: 10px; }
+
+  /* SCALE SELECTOR */
+  .scale-opts { display: flex; gap: 8px; }
+  .scale-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 4px;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-family: 'Space Mono', monospace;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .scale-btn:hover { border-color: var(--accent); }
+  .scale-btn.selected { background: rgba(200,241,53,0.12); border-color: var(--accent); color: var(--accent); }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+  #app-form { display: none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="logo">FDD · GRUPO 4</div>
+      <div class="header-title">Sistema de carga de encuestas</div>
+    </div>
+  </div>
+  <div id="header-num" style="display:none">
+    <div class="encuesta-badge" id="badge-num">—</div>
+    <div class="encuesta-label">N° ENCUESTA</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CONFIG MODAL (Google Sheets) -->
+<div class="modal-overlay" id="sheets-modal">
+  <div class="modal">
+    <h3>Conectar Google Sheets</h3>
+    <p>Pegá la URL de tu Google Apps Script (Web App) para que las respuestas se guarden automáticamente en tu base de datos.</p>
+    <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/.../exec">
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="saveSheetUrl()" style="flex:1">Guardar</button>
+      <button class="btn-reset" onclick="closeModal()" style="flex:1">Cancelar</button>
+    </div>
+    <p style="margin-top:14px; font-size:11px; color:var(--muted)">¿No tenés el link? Podés continuar sin él y exportar los datos manualmente después.</p>
+    <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:6px;text-decoration:underline">Continuar sin conectar</button>
+  </div>
+</div>
+
+<!-- SETUP PANEL -->
+<div class="setup-panel" id="setup-panel">
+  <h2>// CONFIGURACIÓN</h2>
+  <p>Antes de empezar configurá tu nombre. El número de encuesta se asigna automáticamente al enviar para que no haya conflictos entre los 3.</p>
+  <label>TU NOMBRE (encargado de carga)</label>
+  <input type="text" id="op-nombre" placeholder="Ej: María García" autocomplete="off">
+  <label>GOOGLE SHEETS URL <span style="color:var(--accent2)">✓ CONECTADO</span></label>
+  <input type="text" id="sheets-url-setup" placeholder="URL del Web App (podés agregarlo después)" value="https://script.google.com/macros/s/AKfycbz3ZI1j-EK-vf85XRwJCCrH5DA1NrTqsbbJ1Pt6RKSNL6vDnIy4Q3FSJ2HvCHyv1qxC/exec" autocomplete="off">
+  <button class="btn-primary" onclick="startApp()">EMPEZAR A CARGAR →</button>
+</div>
+
+<!-- MAIN FORM -->
+<div class="main" id="app-form">
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+  <!-- SECCIÓN A: DATOS PERSONALES -->
+  <div class="section">
+    <div class="section-label">Sección A — Datos personales</div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">A.1</span> Carrera</div>
+      <div class="options-grid" id="A1">
+        <div class="opt-btn" onclick="selectRadio('A1',this,'LEL',1)">LEL</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'LCA',2)">LCA</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'LGH',3)">LGH</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'LCI',4)">LCI</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'LCIK',5)">LCIK</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'IIN',6)">IIN</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'IEK',7)">IEK</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'IEL',8)">IEL</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'IMK',9)">IMK</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'ISP',10)">ISP</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'ICM',11)">ICM</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'IAE',12)">IAE</div>
+        <div class="opt-btn" onclick="selectRadio('A1',this,'IEN',13)">IEN</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div class="field" style="flex:1;min-width:140px">
+        <div class="field-label"><span class="field-code">A.2</span> Año de ingreso</div>
+        <select id="A2" class="field-select" onchange="updateProgress()">
+          <option value="">-- Seleccioná --</option>
+          <option>2010</option><option>2011</option><option>2012</option>
+          <option>2013</option><option>2014</option><option>2015</option>
+          <option>2016</option><option>2017</option><option>2018</option>
+          <option>2019</option><option>2020</option><option>2021</option>
+          <option>2022</option><option>2023</option><option>2024</option>
+          <option>2025</option>
+        </select>
+      </div>
+      <div class="field" style="flex:1;min-width:100px">
+        <div class="field-label"><span class="field-code">A.3</span> Edad <em style="color:var(--muted);font-size:11px">(17–60)</em></div>
+        <input type="number" id="A3" placeholder="Ej: 21" min="17" max="60" oninput="validateNum(this,17,60,'A3-error'); updateProgress()">
+        <div id="A3-error" style="color:var(--error);font-size:11px;margin-top:4px;display:none">Debe estar entre 17 y 60</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">A.4</span> Sexo</div>
+      <div class="options-grid" id="A4">
+        <div class="opt-btn" onclick="selectRadio('A4',this,'Masculino',0)">Masculino</div>
+        <div class="opt-btn" onclick="selectRadio('A4',this,'Femenino',1)">Femenino</div>
+        <div class="opt-btn" onclick="selectRadio('A4',this,'Prefiero no decirlo',2)">Prefiero no decirlo</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">A.5</span> Forma de ingreso</div>
+      <div class="options-grid" id="A5">
+        <div class="opt-btn" onclick="selectRadio('A5',this,'Primera opción',1)">Primera opción</div>
+        <div class="opt-btn" onclick="selectRadio('A5',this,'Segunda opción',2)">Segunda opción</div>
+        <div class="opt-btn" onclick="selectRadio('A5',this,'Ingreso directo',3)">Ingreso directo</div>
+        <div class="opt-btn" onclick="selectRadio('A5',this,'Cambio de carrera',4)">Cambio de carrera</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">A.6</span> Promedio académico <em style="color:var(--muted);font-size:11px">(1.0–5.0)</em></div>
+      <input type="number" id="A6" placeholder="Ej: 3.5" step="0.1" min="1" max="5" style="max-width:180px" oninput="validateNum(this,1,5,'A6-error'); updateProgress()">
+      <div id="A6-error" style="color:var(--error);font-size:11px;margin-top:4px;display:none">Debe estar entre 1.0 y 5.0</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN B: PERCEPCIONES -->
+  <div class="section">
+    <div class="section-label">Sección B — Percepciones sobre idiomas</div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.1</span> ¿Qué tan importante considerás el dominio de un idioma extranjero para tu formación como profesional?</div>
+      <div class="scale-opts" id="B1">
+        <div class="scale-btn" onclick="selectRadio('B1',this,'1',1)">1</div>
+        <div class="scale-btn" onclick="selectRadio('B1',this,'2',2)">2</div>
+        <div class="scale-btn" onclick="selectRadio('B1',this,'3',3)">3</div>
+        <div class="scale-btn" onclick="selectRadio('B1',this,'4',4)">4</div>
+        <div class="scale-btn" onclick="selectRadio('B1',this,'5',5)">5</div>
+      </div>
+      <div class="scale-labels"><span>Nada importante</span><span>Extremadamente importante</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.2</span> ¿En qué áreas creés que el dominio de un idioma extranjero tiene mayor incidencia? <em style="color:var(--muted);font-size:11px">(puede marcar más de una)</em></div>
+      <div class="options-grid" id="B2">
+        <div class="opt-btn" onclick="selectCheck('B2',this,'Acceso a bibliografía técnica',1)">Acceso a bibliografía técnica</div>
+        <div class="opt-btn" onclick="selectCheck('B2',this,'Intercambios académicos',2)">Intercambios académicos</div>
+        <div class="opt-btn" onclick="selectCheck('B2',this,'Conseguir empleo',3)">Conseguir empleo</div>
+        <div class="opt-btn" onclick="selectCheck('B2',this,'Comunicación internacional',4)">Comunicación internacional</div>
+        <div class="opt-btn" onclick="selectCheck('B2',this,'Desarrollo personal',5)">Desarrollo personal</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.3</span> ¿Creés que conocer un idioma extranjero aumenta las posibilidades de acceder a mejores empleos?</div>
+      <div class="options-grid" id="B3">
+        <div class="opt-btn" onclick="selectRadio('B3',this,'Sí',1)">Sí</div>
+        <div class="opt-btn" onclick="selectRadio('B3',this,'No',2)">No</div>
+        <div class="opt-btn" onclick="selectRadio('B3',this,'No sé',3)">No sé</div>
+        <div class="opt-btn" onclick="selectRadio('B3',this,'Depende del área de trabajo',4)">Depende del área de trabajo</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.4</span> ¿Debería el manejo de un idioma extranjero ser requisito de graduación en la FP?</div>
+      <div class="options-grid" id="B4">
+        <div class="opt-btn" onclick="selectRadio('B4',this,'Sí',1)">Sí</div>
+        <div class="opt-btn" onclick="selectRadio('B4',this,'No',2)">No</div>
+        <div class="opt-btn" onclick="selectRadio('B4',this,'Solo debería ser recomendado',3)">Solo debería ser recomendado</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.5</span> ¿Cuál es tu lengua nativa? <em style="color:var(--muted);font-size:11px">(puede marcar más de una)</em></div>
+      <div class="options-grid" id="B5">
+        <div class="opt-btn" onclick="selectCheck('B5',this,'Español',1)">Español</div>
+        <div class="opt-btn" onclick="selectCheck('B5',this,'Guaraní',2)">Guaraní</div>
+        <div class="opt-btn" onclick="selectCheck('B5',this,'Portugués',3)">Portugués</div>
+        <div class="opt-btn" onclick="selectCheck('B5',this,'Alemán',4)">Alemán</div>
+        <div class="opt-btn" onclick="selectCheck('B5',this,'Otro',5)" id="B5-otro-btn">Otro</div>
+      </div>
+      <input type="text" class="otro-input" id="B5-otro" placeholder="Especificar..." oninput="updateProgress()">
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.6</span> ¿Qué idioma extranjero considerás como el más importante para un estudiante de tu carrera?</div>
+      <div class="options-grid" id="B6">
+        <div class="opt-btn" onclick="selectRadio('B6',this,'Inglés',1)">Inglés</div>
+        <div class="opt-btn" onclick="selectRadio('B6',this,'Portugués',2)">Portugués</div>
+        <div class="opt-btn" onclick="selectRadio('B6',this,'Alemán',3)">Alemán</div>
+        <div class="opt-btn" onclick="selectRadio('B6',this,'Francés',4)">Francés</div>
+        <div class="opt-btn" onclick="selectRadio('B6',this,'Otro',5)" id="B6-otro-btn">Otro</div>
+      </div>
+      <input type="text" class="otro-input" id="B6-otro" placeholder="Especificar..." oninput="updateProgress()">
+    </div>
+  </div>
+
+  <!-- SECCIÓN C: IDIOMAS ESTUDIADOS -->
+  <div class="section">
+    <div class="section-label">Sección C — Idiomas estudiados (P.13)</div>
+
+    <!-- INGLÉS C.1 -->
+    <div class="idioma-card" id="card-C1">
+      <div class="idioma-header" onclick="toggleIdioma('C1')">
+        <div class="idioma-check" id="check-C1"></div>
+        <span class="idioma-name">Inglés</span>
+        <span class="idioma-codes">C.1 · C.1.1 · C.1.2</span>
+      </div>
+      <div class="idioma-body" id="body-C1">
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.1.1 — Nivel</div>
+          <div class="options-grid" id="C1-nivel">
+            <div class="opt-btn" onclick="selectRadio('C1-nivel',this,'Básico',1)">Básico</div>
+            <div class="opt-btn" onclick="selectRadio('C1-nivel',this,'Intermedio',2)">Intermedio</div>
+            <div class="opt-btn" onclick="selectRadio('C1-nivel',this,'Avanzado',3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.1.2 — Lugar donde lo estudió <em style="font-style:normal;color:var(--muted)">(puede marcar más de uno)</em></div>
+          <div class="options-grid" id="C1-lugar">
+            <div class="opt-btn" onclick="selectCheck('C1-lugar',this,'Instituto privado',1)">Instituto privado</div>
+            <div class="opt-btn" onclick="selectCheck('C1-lugar',this,'Facultad',2)">Facultad</div>
+            <div class="opt-btn" onclick="selectCheck('C1-lugar',this,'Plataformas digitales',3)">Plataformas digitales</div>
+            <div class="opt-btn" onclick="selectCheck('C1-lugar',this,'Autoestudio',4)">Autoestudio</div>
+            <div class="opt-btn" onclick="selectCheck('C1-lugar',this,'Centro cultural',5)">Centro cultural</div>
+            <div class="opt-btn" onclick="selectCheck('C1-lugar',this,'Clases particulares',6)">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PORTUGUÉS C.2 -->
+    <div class="idioma-card" id="card-C2">
+      <div class="idioma-header" onclick="toggleIdioma('C2')">
+        <div class="idioma-check" id="check-C2"></div>
+        <span class="idioma-name">Portugués</span>
+        <span class="idioma-codes">C.2 · C.2.1 · C.2.2</span>
+      </div>
+      <div class="idioma-body" id="body-C2">
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.2.1 — Nivel</div>
+          <div class="options-grid" id="C2-nivel">
+            <div class="opt-btn" onclick="selectRadio('C2-nivel',this,'Básico',1)">Básico</div>
+            <div class="opt-btn" onclick="selectRadio('C2-nivel',this,'Intermedio',2)">Intermedio</div>
+            <div class="opt-btn" onclick="selectRadio('C2-nivel',this,'Avanzado',3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.2.2 — Lugar <em style="font-style:normal;color:var(--muted)">(puede marcar más de uno)</em></div>
+          <div class="options-grid" id="C2-lugar">
+            <div class="opt-btn" onclick="selectCheck('C2-lugar',this,'Instituto privado',1)">Instituto privado</div>
+            <div class="opt-btn" onclick="selectCheck('C2-lugar',this,'Facultad',2)">Facultad</div>
+            <div class="opt-btn" onclick="selectCheck('C2-lugar',this,'Plataformas digitales',3)">Plataformas digitales</div>
+            <div class="opt-btn" onclick="selectCheck('C2-lugar',this,'Autoestudio',4)">Autoestudio</div>
+            <div class="opt-btn" onclick="selectCheck('C2-lugar',this,'Centro cultural',5)">Centro cultural</div>
+            <div class="opt-btn" onclick="selectCheck('C2-lugar',this,'Clases particulares',6)">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALEMÁN C.3 -->
+    <div class="idioma-card" id="card-C3">
+      <div class="idioma-header" onclick="toggleIdioma('C3')">
+        <div class="idioma-check" id="check-C3"></div>
+        <span class="idioma-name">Alemán</span>
+        <span class="idioma-codes">C.3 · C.3.1 · C.3.2</span>
+      </div>
+      <div class="idioma-body" id="body-C3">
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.3.1 — Nivel</div>
+          <div class="options-grid" id="C3-nivel">
+            <div class="opt-btn" onclick="selectRadio('C3-nivel',this,'Básico',1)">Básico</div>
+            <div class="opt-btn" onclick="selectRadio('C3-nivel',this,'Intermedio',2)">Intermedio</div>
+            <div class="opt-btn" onclick="selectRadio('C3-nivel',this,'Avanzado',3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.3.2 — Lugar <em style="font-style:normal;color:var(--muted)">(puede marcar más de uno)</em></div>
+          <div class="options-grid" id="C3-lugar">
+            <div class="opt-btn" onclick="selectCheck('C3-lugar',this,'Instituto privado',1)">Instituto privado</div>
+            <div class="opt-btn" onclick="selectCheck('C3-lugar',this,'Facultad',2)">Facultad</div>
+            <div class="opt-btn" onclick="selectCheck('C3-lugar',this,'Plataformas digitales',3)">Plataformas digitales</div>
+            <div class="opt-btn" onclick="selectCheck('C3-lugar',this,'Autoestudio',4)">Autoestudio</div>
+            <div class="opt-btn" onclick="selectCheck('C3-lugar',this,'Centro cultural',5)">Centro cultural</div>
+            <div class="opt-btn" onclick="selectCheck('C3-lugar',this,'Clases particulares',6)">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FRANCÉS C.4 -->
+    <div class="idioma-card" id="card-C4">
+      <div class="idioma-header" onclick="toggleIdioma('C4')">
+        <div class="idioma-check" id="check-C4"></div>
+        <span class="idioma-name">Francés</span>
+        <span class="idioma-codes">C.4 · C.4.1 · C.4.2</span>
+      </div>
+      <div class="idioma-body" id="body-C4">
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.4.1 — Nivel</div>
+          <div class="options-grid" id="C4-nivel">
+            <div class="opt-btn" onclick="selectRadio('C4-nivel',this,'Básico',1)">Básico</div>
+            <div class="opt-btn" onclick="selectRadio('C4-nivel',this,'Intermedio',2)">Intermedio</div>
+            <div class="opt-btn" onclick="selectRadio('C4-nivel',this,'Avanzado',3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.4.2 — Lugar <em style="font-style:normal;color:var(--muted)">(puede marcar más de uno)</em></div>
+          <div class="options-grid" id="C4-lugar">
+            <div class="opt-btn" onclick="selectCheck('C4-lugar',this,'Instituto privado',1)">Instituto privado</div>
+            <div class="opt-btn" onclick="selectCheck('C4-lugar',this,'Facultad',2)">Facultad</div>
+            <div class="opt-btn" onclick="selectCheck('C4-lugar',this,'Plataformas digitales',3)">Plataformas digitales</div>
+            <div class="opt-btn" onclick="selectCheck('C4-lugar',this,'Autoestudio',4)">Autoestudio</div>
+            <div class="opt-btn" onclick="selectCheck('C4-lugar',this,'Centro cultural',5)">Centro cultural</div>
+            <div class="opt-btn" onclick="selectCheck('C4-lugar',this,'Clases particulares',6)">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTRO 1 C.5 -->
+    <div class="idioma-card" id="card-C5">
+      <div class="idioma-header" onclick="toggleIdioma('C5')">
+        <div class="idioma-check" id="check-C5"></div>
+        <span class="idioma-name">Otro idioma 1</span>
+        <span class="idioma-codes">C.5 · C.5.1 · C.5.2</span>
+      </div>
+      <div class="idioma-body" id="body-C5">
+        <div class="idioma-row">
+          <div class="idioma-row-label">Nombre del idioma</div>
+          <input type="text" class="otro-input visible" id="C5-nombre" placeholder="Especificar idioma..." style="max-width:100%" oninput="updateProgress()">
+        </div>
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.5.1 — Nivel</div>
+          <div class="options-grid" id="C5-nivel">
+            <div class="opt-btn" onclick="selectRadio('C5-nivel',this,'Básico',1)">Básico</div>
+            <div class="opt-btn" onclick="selectRadio('C5-nivel',this,'Intermedio',2)">Intermedio</div>
+            <div class="opt-btn" onclick="selectRadio('C5-nivel',this,'Avanzado',3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.5.2 — Lugar <em style="font-style:normal;color:var(--muted)">(puede marcar más de uno)</em></div>
+          <div class="options-grid" id="C5-lugar">
+            <div class="opt-btn" onclick="selectCheck('C5-lugar',this,'Instituto privado',1)">Instituto privado</div>
+            <div class="opt-btn" onclick="selectCheck('C5-lugar',this,'Facultad',2)">Facultad</div>
+            <div class="opt-btn" onclick="selectCheck('C5-lugar',this,'Plataformas digitales',3)">Plataformas digitales</div>
+            <div class="opt-btn" onclick="selectCheck('C5-lugar',this,'Autoestudio',4)">Autoestudio</div>
+            <div class="opt-btn" onclick="selectCheck('C5-lugar',this,'Centro cultural',5)">Centro cultural</div>
+            <div class="opt-btn" onclick="selectCheck('C5-lugar',this,'Clases particulares',6)">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTRO 2 C.6 -->
+    <div class="idioma-card" id="card-C6">
+      <div class="idioma-header" onclick="toggleIdioma('C6')">
+        <div class="idioma-check" id="check-C6"></div>
+        <span class="idioma-name">Otro idioma 2</span>
+        <span class="idioma-codes">C.6 · C.6.1 · C.6.2</span>
+      </div>
+      <div class="idioma-body" id="body-C6">
+        <div class="idioma-row">
+          <div class="idioma-row-label">Nombre del idioma</div>
+          <input type="text" class="otro-input visible" id="C6-nombre" placeholder="Especificar idioma..." style="max-width:100%" oninput="updateProgress()">
+        </div>
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.6.1 — Nivel</div>
+          <div class="options-grid" id="C6-nivel">
+            <div class="opt-btn" onclick="selectRadio('C6-nivel',this,'Básico',1)">Básico</div>
+            <div class="opt-btn" onclick="selectRadio('C6-nivel',this,'Intermedio',2)">Intermedio</div>
+            <div class="opt-btn" onclick="selectRadio('C6-nivel',this,'Avanzado',3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="idioma-row">
+          <div class="idioma-row-label">C.6.2 — Lugar <em style="font-style:normal;color:var(--muted)">(puede marcar más de uno)</em></div>
+          <div class="options-grid" id="C6-lugar">
+            <div class="opt-btn" onclick="selectCheck('C6-lugar',this,'Instituto privado',1)">Instituto privado</div>
+            <div class="opt-btn" onclick="selectCheck('C6-lugar',this,'Facultad',2)">Facultad</div>
+            <div class="opt-btn" onclick="selectCheck('C6-lugar',this,'Plataformas digitales',3)">Plataformas digitales</div>
+            <div class="opt-btn" onclick="selectCheck('C6-lugar',this,'Autoestudio',4)">Autoestudio</div>
+            <div class="opt-btn" onclick="selectCheck('C6-lugar',this,'Centro cultural',5)">Centro cultural</div>
+            <div class="opt-btn" onclick="selectCheck('C6-lugar',this,'Clases particulares',6)">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN D: ESTUDIO ACTUAL -->
+  <div class="section">
+    <div class="section-label">Sección D — Estudio actual (P.14)</div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">D.1</span> ¿Actualmente estás estudiando algún idioma extranjero?</div>
+      <div class="options-grid" id="D1">
+        <div class="opt-btn" onclick="selectRadio('D1',this,'Sí',1); toggleD1('si')">Sí</div>
+        <div class="opt-btn" onclick="selectRadio('D1',this,'No',2); toggleD1('no')">No</div>
+      </div>
+    </div>
+
+    <div class="conditional-block" id="D1-si-block">
+      <div class="field-label" style="margin-bottom:10px"><span class="field-code">D.1.1</span> Si respondiste SÍ, ¿cuál es tu motivo principal? <em style="color:var(--muted);font-size:11px">(puede marcar más de uno)</em></div>
+      <div class="options-grid" id="D11">
+        <div class="opt-btn" onclick="selectCheck('D11',this,'Conseguir empleo',1)">Conseguir empleo</div>
+        <div class="opt-btn" onclick="selectCheck('D11',this,'Requisito académico',2)">Requisito académico</div>
+        <div class="opt-btn" onclick="selectCheck('D11',this,'Becas o intercambios',3)">Becas o intercambios</div>
+        <div class="opt-btn" onclick="selectCheck('D11',this,'Interés personal',4)">Interés personal</div>
+        <div class="opt-btn" onclick="toggleD11Otro(this)" id="D11-otro-btn">Otro</div>
+      </div>
+      <input type="text" class="otro-input" id="D11-otro" placeholder="Especificar motivo..." oninput="updateProgress()">
+    </div>
+
+    <div class="conditional-block" id="D1-no-block">
+      <div class="field-label" style="margin-bottom:10px"><span class="field-code">D.1.2</span> Si respondiste NO, ¿por qué no estás estudiando uno actualmente? <em style="color:var(--muted);font-size:11px">(puede marcar más de uno)</em></div>
+      <div class="options-grid" id="D12">
+        <div class="opt-btn" onclick="selectCheck('D12',this,'Falta de tiempo',1)">Falta de tiempo</div>
+        <div class="opt-btn" onclick="selectCheck('D12',this,'Costo elevado',2)">Costo elevado</div>
+        <div class="opt-btn" onclick="selectCheck('D12',this,'No lo considero importante',3)">No lo considero importante</div>
+        <div class="opt-btn" onclick="selectCheck('D12',this,'Ya tengo el nivel necesario',4)">Ya tengo el nivel necesario</div>
+        <div class="opt-btn" onclick="toggleD12Otro(this)" id="D12-otro-btn">Otro</div>
+      </div>
+      <input type="text" class="otro-input" id="D12-otro" placeholder="Especificar motivo..." oninput="updateProgress()">
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- SUBMIT BAR -->
+<div class="submit-bar" id="submit-bar" style="display:none">
+  <button class="btn-reset" onclick="confirmReset()">↺ Limpiar</button>
+  <div class="submit-info" id="submit-info">Completá los campos obligatorios</div>
+  <button class="btn-submit" id="btn-submit" onclick="submitForm()">GUARDAR ENCUESTA →</button>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────
+const state = {
+  operador: '',
+  sheetsUrl: 'https://script.google.com/macros/s/AKfycbz3ZI1j-EK-vf85XRwJCCrH5DA1NrTqsbbJ1Pt6RKSNL6vDnIy4Q3FSJ2HvCHyv1qxC/exec',
+  // Radio values (field → {label, code})
+  radio: {},
+  // Checkbox values (field → [{label,code}])
+  check: {},
+  // Idiomas activos
+  idiomas: { C1:false, C2:false, C3:false, C4:false, C5:false, C6:false }
+};
+
+// ─── SETUP ───────────────────────────────────────────────────────
+function startApp() {
+  const nombre = document.getElementById('op-nombre').value.trim();
+  const url = document.getElementById('sheets-url-setup').value.trim();
+  if (!nombre) { showToast('Ingresá tu nombre primero', 'error'); return; }
+  state.operador = nombre;
+  if (url) state.sheetsUrl = url;
+  document.getElementById('setup-panel').style.display = 'none';
+  document.getElementById('app-form').style.display = 'block';
+  document.getElementById('submit-bar').style.display = 'flex';
+  document.getElementById('header-num').style.display = 'block';
+  updateProgress();
+}
+
+// ─── RADIO ───────────────────────────────────────────────────────
+function selectRadio(fieldId, el, label, code) {
+  document.querySelectorAll(`#${fieldId} .opt-btn, #${fieldId} .scale-btn`)
+    .forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  state.radio[fieldId] = { label, code };
+
+  // Mostrar "Otro" inputs
+  if (fieldId === 'B5') toggleOtro('B5-otro', label === 'Otro', 'B5-otro-btn');
+  if (fieldId === 'B6') toggleOtro('B6-otro', label === 'Otro', 'B6-otro-btn');
+
+  updateProgress();
+}
+
+// ─── CHECKBOX ────────────────────────────────────────────────────
+function selectCheck(fieldId, el, label, code) {
+  el.classList.toggle('selected');
+  if (!state.check[fieldId]) state.check[fieldId] = [];
+  const idx = state.check[fieldId].findIndex(x => x.code === code);
+  if (idx > -1) state.check[fieldId].splice(idx, 1);
+  else state.check[fieldId].push({ label, code });
+  updateProgress();
+}
+
+// ─── IDIOMAS ─────────────────────────────────────────────────────
+function toggleIdioma(id) {
+  const active = state.idiomas[id] = !state.idiomas[id];
+  const check = document.getElementById(`check-${id}`);
+  const body  = document.getElementById(`body-${id}`);
+  const card  = document.getElementById(`card-${id}`);
+  check.className = 'idioma-check' + (active ? ' checked' : '');
+  body.className  = 'idioma-body'  + (active ? ' visible' : '');
+  card.className  = 'idioma-card'  + (active ? ' active'  : '');
+  if (!active) {
+    // Limpiar selecciones internas
+    [`${id}-nivel`, `${id}-lugar`].forEach(fid => {
+      document.querySelectorAll(`#${fid} .opt-btn`).forEach(b => b.classList.remove('selected'));
+      delete state.radio[fid];
+      delete state.check[fid];
+    });
+  }
+  updateProgress();
+}
+
+// ─── CONDICIONALES D1 ────────────────────────────────────────────
+function toggleD1(resp) {
+  document.getElementById('D1-si-block').className = 'conditional-block' + (resp==='si' ? ' visible' : '');
+  document.getElementById('D1-no-block').className = 'conditional-block' + (resp==='no' ? ' visible' : '');
+}
+
+// ─── OTRO INPUTS ─────────────────────────────────────────────────
+function toggleOtro(inputId, show) {
+  document.getElementById(inputId).className = 'otro-input' + (show ? ' visible' : '');
+}
+
+// Watch B5 checkbox for Otro
+document.getElementById('B5-otro-btn').addEventListener('click', function() {
+  const isSelected = this.classList.contains('selected');
+  document.getElementById('B5-otro').className = 'otro-input' + (isSelected ? ' visible' : '');
+});
+document.getElementById('B6-otro-btn').addEventListener('click', function() {
+  const isSelected = this.classList.contains('selected');
+  document.getElementById('B6-otro').className = 'otro-input' + (isSelected ? ' visible' : '');
+});
+
+// ─── PROGRESS ────────────────────────────────────────────────────
+function updateProgress() {
+  const required = ['A1','A2','A3','A4','A5','A6','B1','B2','B3','B4','B5','B6','D1'];
+  let filled = 0;
+  required.forEach(f => {
+    if (state.radio[f] || (state.check[f] && state.check[f].length > 0)) filled++;
+    else if (document.getElementById(f) && document.getElementById(f).tagName === 'INPUT' && document.getElementById(f).value) filled++;
+    else if (f === 'A2' && document.getElementById('A2').value) filled++;
+    else if (f === 'A3' && document.getElementById('A3').value) filled++;
+    else if (f === 'A6' && document.getElementById('A6').value) filled++;
+  });
+  const pct = Math.round((filled / required.length) * 100);
+  document.getElementById('progress').style.width = pct + '%';
+  document.getElementById('submit-info').textContent = `${pct}% completado · Operador: ${state.operador}`;
+}
+
+// ─── COLLECT DATA ────────────────────────────────────────────────
+function collectData() {
+  const get = id => state.radio[id] ? state.radio[id].code : '';
+  const getLabel = id => state.radio[id] ? state.radio[id].label : '';
+  const getChecks = id => state.check[id] ? state.check[id].map(x=>x.code).join(';') : '';
+
+  const d = {
+    'N°':         '', // se asigna al guardar
+    'A.1':        get('A1'),
+    'A.2':        document.getElementById('A2').value,
+    'A.3':        document.getElementById('A3').value,
+    'A.4':        get('A4'),
+    'A.5':        get('A5'),
+    'A.6':        document.getElementById('A6').value,
+    'B.1':        get('B1'),
+    'B.2':        getChecks('B2'),
+    'B.3':        get('B3'),
+    'B.4':        get('B4'),
+    'B.5':        getChecks('B5') + (document.getElementById('B5-otro').value ? ';'+document.getElementById('B5-otro').value : ''),
+    'B.6':        getLabel('B6') === 'Otro' ? document.getElementById('B6-otro').value : getLabel('B6'),
+    // Idiomas C
+    'C.1':        state.idiomas.C1 ? 1 : 0,
+    'C.1.1':      state.idiomas.C1 ? get('C1-nivel') : '',
+    'C.1.2':      state.idiomas.C1 ? getChecks('C1-lugar') : '',
+    'C.2':        state.idiomas.C2 ? 1 : 0,
+    'C.2.1':      state.idiomas.C2 ? get('C2-nivel') : '',
+    'C.2.2':      state.idiomas.C2 ? getChecks('C2-lugar') : '',
+    'C.3':        state.idiomas.C3 ? 1 : 0,
+    'C.3.1':      state.idiomas.C3 ? get('C3-nivel') : '',
+    'C.3.2':      state.idiomas.C3 ? getChecks('C3-lugar') : '',
+    'C.4':        state.idiomas.C4 ? 1 : 0,
+    'C.4.1':      state.idiomas.C4 ? get('C4-nivel') : '',
+    'C.4.2':      state.idiomas.C4 ? getChecks('C4-lugar') : '',
+    'C.5':        state.idiomas.C5 ? 1 : 0,
+    'C.5.1':      state.idiomas.C5 ? get('C5-nivel') : '',
+    'C.5.2':      state.idiomas.C5 ? getChecks('C5-lugar') : '',
+    'C.5_nombre': state.idiomas.C5 ? document.getElementById('C5-nombre').value : '',
+    'C.6':        state.idiomas.C6 ? 1 : 0,
+    'C.6.1':      state.idiomas.C6 ? get('C6-nivel') : '',
+    'C.6.2':      state.idiomas.C6 ? getChecks('C6-lugar') : '',
+    'C.6_nombre': state.idiomas.C6 ? document.getElementById('C6-nombre').value : '',
+    // D
+    'D.1':        get('D1'),
+    'D.1.1':      get('D1') == 1 ? (getChecks('D11') + (document.getElementById('D11-otro').value ? ';Otro:'+document.getElementById('D11-otro').value : '')) : '',
+    'D.1.2':      get('D1') == 2 ? (getChecks('D12') + (document.getElementById('D12-otro').value ? ';Otro:'+document.getElementById('D12-otro').value : '')) : '',
+    '_operador':  state.operador,
+    '_timestamp': new Date().toISOString()
+  };
+  return d;
+}
+
+// ─── LOCAL STORAGE (respaldo) ────────────────────────────────────
+function getLocalData() {
+  try { return JSON.parse(localStorage.getItem('fdd_encuestas') || '[]'); } catch { return []; }
+}
+function saveLocal(row) {
+  const all = getLocalData();
+  const num = all.length + 1;
+  row['N°'] = num;
+  all.push(row);
+  localStorage.setItem('fdd_encuestas', JSON.stringify(all));
+  return num;
+}
+
+// ─── SUBMIT ──────────────────────────────────────────────────────
+async function submitForm() {
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'ENVIANDO A SHEETS...';
+
+  const data = collectData();
+  const num = saveLocal({...data});
+  data['N°'] = num;
+
+  document.getElementById('badge-num').textContent = '#' + String(num).padStart(3,'0');
+
+  // Enviar a Google Sheets
+  if (state.sheetsUrl) {
+    try {
+      await fetch(state.sheetsUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      showToast(`✓ Encuesta #${num} enviada a Google Sheets`, 'success');
+    } catch(err) {
+      showToast(`⚠ Guardada localmente — verificar conexión`, 'error');
+    }
+  } else {
+    showToast(`✓ Encuesta #${num} guardada localmente`, 'success');
+  }
+
+  setTimeout(() => {
+    alert(`✅ Encuesta N° ${num} guardada correctamente.\n\nOperador: ${state.operador}\nAnota el número ${num} en la hoja física si corresponde.`);
+    resetForm();
+  }, 500);
+
+  btn.disabled = false;
+  btn.textContent = 'GUARDAR ENCUESTA →';
+}
+
+// ─── RESET ───────────────────────────────────────────────────────
+function confirmReset() {
+  if (confirm('¿Limpiar todos los campos para cargar una nueva encuesta?')) resetForm();
+}
+function resetForm() {
+  // Limpiar state
+  state.radio = {};
+  state.check = {};
+  state.idiomas = { C1:false, C2:false, C3:false, C4:false, C5:false, C6:false };
+  // Limpiar UI
+  document.querySelectorAll('.opt-btn.selected, .scale-btn.selected').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('input[type="text"], input[type="number"]').forEach(i => { if(i.id !== 'op-nombre' && i.id !== 'sheets-url-setup') i.value = ''; });
+  document.querySelectorAll('.otro-input').forEach(i => i.className = 'otro-input');
+  document.querySelectorAll('.conditional-block').forEach(b => b.className = 'conditional-block');
+  ['C1','C2','C3','C4','C5','C6'].forEach(id => {
+    document.getElementById(`check-${id}`).className = 'idioma-check';
+    document.getElementById(`body-${id}`).className = 'idioma-body';
+    document.getElementById(`card-${id}`).className = 'idioma-card';
+  });
+  document.getElementById('badge-num').textContent = '—';
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────
+function closeModal() {
+  document.getElementById('sheets-modal').className = 'modal-overlay';
+}
+function saveSheetUrl() {
+  const url = document.getElementById('sheets-url').value.trim();
+  if (url) { state.sheetsUrl = url; showToast('URL de Google Sheets guardada', 'success'); }
+  closeModal();
+}
+
+// ─── VALIDATION ─────────────────────────────────────────────────
+function validateNum(input, min, max, errId) {
+  const v = parseFloat(input.value);
+  const err = document.getElementById(errId);
+  if (input.value && (isNaN(v) || v < min || v > max)) {
+    err.style.display = 'block';
+    input.style.borderColor = 'var(--error)';
+  } else {
+    err.style.display = 'none';
+    input.style.borderColor = '';
+  }
+}
+
+// ─── D11 / D12 OTRO TOGGLE ───────────────────────────────────────
+function toggleD11Otro(el) {
+  el.classList.toggle('selected');
+  const show = el.classList.contains('selected');
+  document.getElementById('D11-otro').className = 'otro-input' + (show ? ' visible' : '');
+  if (!show) document.getElementById('D11-otro').value = '';
+  updateProgress();
+}
+function toggleD12Otro(el) {
+  el.classList.toggle('selected');
+  const show = el.classList.contains('selected');
+  document.getElementById('D12-otro').className = 'otro-input' + (show ? ' visible' : '');
+  if (!show) document.getElementById('D12-otro').value = '';
+  updateProgress();
+}
+
+// Init badge
+document.getElementById('badge-num').textContent = '—';
+</script>
+</body>
+</html>
