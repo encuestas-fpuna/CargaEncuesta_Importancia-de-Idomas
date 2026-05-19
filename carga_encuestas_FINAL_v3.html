@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carga de Encuestas — FDD Grupo 4</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2e2e2e;--accent:#c8f135;--accent2:#3bf0a0;--text:#f0f0f0;--muted:#666;--error:#ff5252;--radius:6px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:0 0 80px}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:12px}
+.desde-wrap{display:flex;align-items:center;gap:6px}
+.desde-lbl{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap}
+.desde-input{width:64px;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:5px 8px;border-radius:var(--radius);font-family:'Space Mono',monospace;font-size:14px;font-weight:700;text-align:center;outline:none}
+.nombre-wrap{display:flex;align-items:center;gap:6px}
+.nombre-input{width:130px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.nombre-input:focus,.desde-input:focus{border-color:var(--accent)}
+.badge{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--accent);background:rgba(200,241,53,.08);border:1px solid rgba(200,241,53,.2);padding:4px 12px;border-radius:var(--radius);min-width:72px;text-align:center}
+.badge-lbl{font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;text-align:center;margin-top:1px}
+.main{max-width:720px;margin:0 auto;padding:28px 20px}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;margin-bottom:28px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .4s ease}
+.section{margin-bottom:36px;animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{margin-bottom:20px}
+.field-label{font-size:13px;color:var(--text);margin-bottom:8px;font-weight:500;line-height:1.4;display:flex;align-items:flex-start;gap:8px}
+.field-code{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);background:rgba(200,241,53,.08);padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:1px;flex-shrink:0}
+.field-note{font-size:11px;color:var(--muted);font-style:italic}
+input[type=text],input[type=number],select.fsel{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+input[type=text]:focus,input[type=number]:focus,select.fsel:focus{border-color:var(--accent)}
+select.fsel option{background:var(--surface)}
+.opts{display:flex;flex-wrap:wrap;gap:7px}
+.ob{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 13px;border-radius:var(--radius);font-size:13px;cursor:pointer;transition:all .15s;user-select:none;font-family:'DM Sans',sans-serif}
+.ob:hover{border-color:var(--accent);color:var(--accent)}
+.ob.sel{background:rgba(200,241,53,.12);border-color:var(--accent);color:var(--accent);font-weight:600}
+.scale-opts{display:flex;gap:7px}
+.sb{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:9px 4px;border-radius:var(--radius);font-size:15px;font-family:'Space Mono',monospace;cursor:pointer;text-align:center;transition:all .15s}
+.sb:hover{border-color:var(--accent)}
+.sb.sel{background:rgba(200,241,53,.12);border-color:var(--accent);color:var(--accent)}
+.scale-lbls{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
+.otro-input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;outline:none;margin-top:8px;display:none;text-transform:uppercase}
+.otro-input.vis{display:block}
+.cond{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:10px}
+.cond.vis{display:block}
+.icard{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.icard.active{border-color:var(--accent)}
+.ihead{display:flex;align-items:center;gap:10px;padding:13px 15px;cursor:pointer;background:var(--surface2)}
+.ichk{width:19px;height:19px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.ichk.on{background:var(--accent);border-color:var(--accent)}
+.ichk.on::after{content:'✓';font-size:11px;color:#0f0f0f;font-weight:700}
+.iname{font-weight:600;font-size:14px}
+.icodes{margin-left:auto;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)}
+.ibody{padding:14px;display:none;border-top:1px solid var(--border)}
+.ibody.vis{display:block}
+.irow{margin-bottom:12px}
+.irow-lbl{font-size:11px;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace}
+.ferr{color:var(--error);font-size:11px;margin-top:3px;display:none}
+.row2{display:flex;gap:14px;flex-wrap:wrap}
+.row2>.field{flex:1;min-width:120px}
+.submit-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.submit-info{font-size:12px;color:var(--muted)}
+.btn-submit{background:var(--accent);color:#0f0f0f;border:none;padding:11px 28px;border-radius:var(--radius);font-family:'Space Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.btn-submit:hover{opacity:.88}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.btn-reset{background:transparent;color:var(--muted);border:1px solid var(--border);padding:9px 18px;border-radius:var(--radius);font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:all .2s}
+.btn-reset:hover{border-color:var(--error);color:var(--error)}
+.toast{position:fixed;top:68px;right:18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13px;max-width:280px;transform:translateX(120%);transition:transform .3s ease;z-index:999}
+.toast.show{transform:translateX(0)}
+.toast.ok{border-color:var(--accent2);color:var(--accent2)}
+.toast.err{border-color:var(--error);color:var(--error)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">FDD · GRUPO 4</div>
+    <div style="font-size:12px;color:var(--muted)">Carga de encuestas</div>
+  </div>
+  <div class="header-right">
+    <div class="nombre-wrap">
+      <span class="desde-lbl">NOMBRE</span>
+      <input class="nombre-input" id="inp-nombre" placeholder="Tu nombre..." oninput="updateInfo()" autocomplete="off">
+    </div>
+    <!-- MODO SELECTOR -->
+    <div class="desde-wrap" id="modo-wrap">
+      <span class="desde-lbl" id="modo-lbl">DESDE N°</span>
+      <input class="desde-input" id="inp-desde" type="number" min="1" max="9999" value="1" oninput="updateInfo()">
+    </div>
+    <!-- Toggle modo fijo -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+      <button id="btn-modo" onclick="toggleModo()" title="Alternar modo automático / número fijo"
+        style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:4px 8px;border-radius:var(--radius);font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;white-space:nowrap;transition:all .2s">
+        AUTO
+      </button>
+      <span style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace">MODO</span>
+    </div>
+    <div>
+      <div class="badge" id="badge">—</div>
+      <div class="badge-lbl" id="badge-lbl">PRÓXIMA</div>
+    </div>
+    <!-- Botón gestión -->
+    <button onclick="openGestion()" title="Ver y gestionar encuestas cargadas"
+      style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:6px 10px;border-radius:var(--radius);font-size:16px;cursor:pointer;transition:all .2s;line-height:1"
+      onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⚙</button>
+  </div>
+</div>
+
+<!-- ══════ MODAL GESTIÓN ══════ -->
+<div id="modal-gestion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;overflow-y:auto;padding:20px">
+  <div style="max-width:680px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+    <div style="background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--accent)">GESTIÓN DE ENCUESTAS</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Encuestas guardadas en este dispositivo</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button onclick="resetContador()" style="background:transparent;border:1px solid var(--error);color:var(--error);padding:5px 12px;border-radius:var(--radius);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer" title="Borra solo el contador local, no toca Sheets">↺ RESET CONTADOR</button>
+        <button onclick="closeGestion()" style="background:var(--border);border:none;color:var(--text);padding:5px 12px;border-radius:var(--radius);font-family:'Space Mono',monospace;font-size:11px;cursor:pointer">✕ CERRAR</button>
+      </div>
+    </div>
+    <div style="padding:16px" id="gestion-body">
+      <!-- se rellena por JS -->
+    </div>
+    <div style="padding:12px 18px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:'Space Mono',monospace" id="gestion-footer"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="main">
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+
+  <!-- A -->
+  <div class="section">
+    <div class="section-label">Sección A — Datos personales</div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">A.1</span> Carrera</div>
+      <div class="opts" id="A1">
+        <div class="ob" onclick="radio('A1',this,1)">LEL</div>
+        <div class="ob" onclick="radio('A1',this,2)">LCA</div>
+        <div class="ob" onclick="radio('A1',this,3)">LGH</div>
+        <div class="ob" onclick="radio('A1',this,4)">LCI</div>
+        <div class="ob" onclick="radio('A1',this,5)">LCIK</div>
+        <div class="ob" onclick="radio('A1',this,6)">IIN</div>
+        <div class="ob" onclick="radio('A1',this,7)">IEK</div>
+        <div class="ob" onclick="radio('A1',this,8)">IEL</div>
+        <div class="ob" onclick="radio('A1',this,9)">IMK</div>
+        <div class="ob" onclick="radio('A1',this,10)">ISP</div>
+        <div class="ob" onclick="radio('A1',this,11)">ICM</div>
+        <div class="ob" onclick="radio('A1',this,12)">IAE</div>
+        <div class="ob" onclick="radio('A1',this,13)">IEN</div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <div class="field-label"><span class="field-code">A.2</span> Año de ingreso</div>
+        <select id="A2" class="fsel" onchange="updateProg()">
+          <option value="">-- Seleccioná --</option>
+          <option>2010</option><option>2011</option><option>2012</option><option>2013</option>
+          <option>2014</option><option>2015</option><option>2016</option><option>2017</option>
+          <option>2018</option><option>2019</option><option>2020</option><option>2021</option>
+          <option>2022</option><option>2023</option><option>2024</option><option>2025</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label"><span class="field-code">A.3</span> Edad <span class="field-note">(17–60)</span></div>
+        <input type="number" id="A3" min="17" max="60" placeholder="Ej: 21" oninput="valNum(this,17,60,'A3e');updateProg()">
+        <div class="ferr" id="A3e">Debe estar entre 17 y 60</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">A.4</span> Sexo</div>
+      <div class="opts" id="A4">
+        <div class="ob" onclick="radio('A4',this,0)">Masculino</div>
+        <div class="ob" onclick="radio('A4',this,1)">Femenino</div>
+        <div class="ob" onclick="radio('A4',this,2)">Prefiero no decirlo</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">A.5</span> Forma de ingreso</div>
+      <div class="opts" id="A5">
+        <div class="ob" onclick="radio('A5',this,1)">Primera opción</div>
+        <div class="ob" onclick="radio('A5',this,2)">Segunda opción</div>
+        <div class="ob" onclick="radio('A5',this,3)">Ingreso directo</div>
+        <div class="ob" onclick="radio('A5',this,4)">Cambio de carrera</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">A.6</span> Promedio académico <span class="field-note">(1.0–5.0)</span></div>
+      <input type="number" id="A6" min="1" max="5" step="0.1" placeholder="Ej: 3.5" style="max-width:160px" oninput="valNum(this,1,5,'A6e');updateProg()">
+      <div class="ferr" id="A6e">Debe estar entre 1.0 y 5.0</div>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div class="section">
+    <div class="section-label">Sección B — Percepciones</div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.1</span> ¿Qué tan importante considerás el dominio de un idioma extranjero para tu formación profesional?</div>
+      <div class="scale-opts" id="B1">
+        <div class="sb" onclick="radio('B1',this,1)">1</div>
+        <div class="sb" onclick="radio('B1',this,2)">2</div>
+        <div class="sb" onclick="radio('B1',this,3)">3</div>
+        <div class="sb" onclick="radio('B1',this,4)">4</div>
+        <div class="sb" onclick="radio('B1',this,5)">5</div>
+      </div>
+      <div class="scale-lbls"><span>Nada importante</span><span>Extremadamente importante</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.2</span> ¿En qué áreas creés que el dominio de un idioma tiene mayor incidencia? <span class="field-note">(puede marcar más de una)</span></div>
+      <div class="opts">
+        <div class="ob" onclick="chk(this,'B2_1')">Acceso a bibliografía técnica</div>
+        <div class="ob" onclick="chk(this,'B2_2')">Intercambios académicos</div>
+        <div class="ob" onclick="chk(this,'B2_3')">Conseguir empleo</div>
+        <div class="ob" onclick="chk(this,'B2_4')">Comunicación internacional</div>
+        <div class="ob" onclick="chk(this,'B2_5')">Desarrollo personal</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.3</span> ¿Creés que conocer un idioma extranjero aumenta posibilidades de acceder a mejores empleos?</div>
+      <div class="opts" id="B3">
+        <div class="ob" onclick="radio('B3',this,1)">Sí</div>
+        <div class="ob" onclick="radio('B3',this,2)">No</div>
+        <div class="ob" onclick="radio('B3',this,3)">No sé</div>
+        <div class="ob" onclick="radio('B3',this,4)">Depende del área</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.4</span> ¿Debería el manejo de un idioma extranjero ser requisito de graduación en la FP?</div>
+      <div class="opts" id="B4">
+        <div class="ob" onclick="radio('B4',this,1)">Sí</div>
+        <div class="ob" onclick="radio('B4',this,2)">No</div>
+        <div class="ob" onclick="radio('B4',this,3)">Solo debería ser recomendado</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.5</span> ¿Cuál es tu lengua nativa? <span class="field-note">(puede marcar más de una)</span></div>
+      <div class="opts">
+        <div class="ob" onclick="chk(this,'B5_1')">Español</div>
+        <div class="ob" onclick="chk(this,'B5_2')">Guaraní</div>
+        <div class="ob" onclick="chk(this,'B5_3')">Portugués</div>
+        <div class="ob" onclick="chk(this,'B5_4')">Alemán</div>
+        <div class="ob" onclick="chk(this,'B5_5');toggleOtro('B55t',this)">Otro</div>
+      </div>
+      <input type="text" class="otro-input" id="B55t" placeholder="Especificar lengua nativa..." oninput="upperCase(this);updateProg()">
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">B.6</span> ¿Qué idioma extranjero considerás como el más importante para un estudiante de tu carrera? <span class="field-note">(puede marcar más de una)</span></div>
+      <div class="opts">
+        <div class="ob" onclick="chk(this,'B6_1')">Inglés</div>
+        <div class="ob" onclick="chk(this,'B6_2')">Portugués</div>
+        <div class="ob" onclick="chk(this,'B6_3')">Alemán</div>
+        <div class="ob" onclick="chk(this,'B6_4')">Francés</div>
+        <div class="ob" onclick="chk(this,'B6_5');toggleOtro('B65t',this)">Otro</div>
+      </div>
+      <input type="text" class="otro-input" id="B65t" placeholder="Especificar idioma..." oninput="upperCase(this);updateProg()">
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="section">
+    <div class="section-label">Sección C — Idiomas estudiados (P.13)</div>
+
+    <!-- C1 INGLÉS -->
+    <div class="icard" id="card-C1">
+      <div class="ihead" onclick="toggleIdioma('C1')">
+        <div class="ichk" id="chk-C1"></div>
+        <span class="iname">Inglés</span>
+        <span class="icodes">C.1 · C.1.1 · C.1.2.1–6</span>
+      </div>
+      <div class="ibody" id="body-C1">
+        <div class="irow">
+          <div class="irow-lbl">C.1.1 — Nivel</div>
+          <div class="opts" id="C1niv">
+            <div class="ob" onclick="radio('C1niv',this,1)">Básico</div>
+            <div class="ob" onclick="radio('C1niv',this,2)">Intermedio</div>
+            <div class="ob" onclick="radio('C1niv',this,3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="irow">
+          <div class="irow-lbl">C.1.2 — Lugar <span class="field-note">(puede marcar más de uno)</span></div>
+          <div class="opts">
+            <div class="ob" onclick="chk(this,'C1_21')">Instituto privado</div>
+            <div class="ob" onclick="chk(this,'C1_22')">Facultad</div>
+            <div class="ob" onclick="chk(this,'C1_23')">Plataformas digitales</div>
+            <div class="ob" onclick="chk(this,'C1_24')">Autoestudio</div>
+            <div class="ob" onclick="chk(this,'C1_25')">Centro cultural</div>
+            <div class="ob" onclick="chk(this,'C1_26')">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C2 PORTUGUÉS -->
+    <div class="icard" id="card-C2">
+      <div class="ihead" onclick="toggleIdioma('C2')">
+        <div class="ichk" id="chk-C2"></div>
+        <span class="iname">Portugués</span>
+        <span class="icodes">C.2 · C.2.1 · C.2.2.1–6</span>
+      </div>
+      <div class="ibody" id="body-C2">
+        <div class="irow">
+          <div class="irow-lbl">C.2.1 — Nivel</div>
+          <div class="opts" id="C2niv">
+            <div class="ob" onclick="radio('C2niv',this,1)">Básico</div>
+            <div class="ob" onclick="radio('C2niv',this,2)">Intermedio</div>
+            <div class="ob" onclick="radio('C2niv',this,3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="irow">
+          <div class="irow-lbl">C.2.2 — Lugar</div>
+          <div class="opts">
+            <div class="ob" onclick="chk(this,'C2_21')">Instituto privado</div>
+            <div class="ob" onclick="chk(this,'C2_22')">Facultad</div>
+            <div class="ob" onclick="chk(this,'C2_23')">Plataformas digitales</div>
+            <div class="ob" onclick="chk(this,'C2_24')">Autoestudio</div>
+            <div class="ob" onclick="chk(this,'C2_25')">Centro cultural</div>
+            <div class="ob" onclick="chk(this,'C2_26')">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C3 ALEMÁN -->
+    <div class="icard" id="card-C3">
+      <div class="ihead" onclick="toggleIdioma('C3')">
+        <div class="ichk" id="chk-C3"></div>
+        <span class="iname">Alemán</span>
+        <span class="icodes">C.3 · C.3.1 · C.3.2.1–6</span>
+      </div>
+      <div class="ibody" id="body-C3">
+        <div class="irow">
+          <div class="irow-lbl">C.3.1 — Nivel</div>
+          <div class="opts" id="C3niv">
+            <div class="ob" onclick="radio('C3niv',this,1)">Básico</div>
+            <div class="ob" onclick="radio('C3niv',this,2)">Intermedio</div>
+            <div class="ob" onclick="radio('C3niv',this,3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="irow">
+          <div class="irow-lbl">C.3.2 — Lugar</div>
+          <div class="opts">
+            <div class="ob" onclick="chk(this,'C3_21')">Instituto privado</div>
+            <div class="ob" onclick="chk(this,'C3_22')">Facultad</div>
+            <div class="ob" onclick="chk(this,'C3_23')">Plataformas digitales</div>
+            <div class="ob" onclick="chk(this,'C3_24')">Autoestudio</div>
+            <div class="ob" onclick="chk(this,'C3_25')">Centro cultural</div>
+            <div class="ob" onclick="chk(this,'C3_26')">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C4 FRANCÉS -->
+    <div class="icard" id="card-C4">
+      <div class="ihead" onclick="toggleIdioma('C4')">
+        <div class="ichk" id="chk-C4"></div>
+        <span class="iname">Francés</span>
+        <span class="icodes">C.4 · C.4.1 · C.4.2.1–6</span>
+      </div>
+      <div class="ibody" id="body-C4">
+        <div class="irow">
+          <div class="irow-lbl">C.4.1 — Nivel</div>
+          <div class="opts" id="C4niv">
+            <div class="ob" onclick="radio('C4niv',this,1)">Básico</div>
+            <div class="ob" onclick="radio('C4niv',this,2)">Intermedio</div>
+            <div class="ob" onclick="radio('C4niv',this,3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="irow">
+          <div class="irow-lbl">C.4.2 — Lugar</div>
+          <div class="opts">
+            <div class="ob" onclick="chk(this,'C4_21')">Instituto privado</div>
+            <div class="ob" onclick="chk(this,'C4_22')">Facultad</div>
+            <div class="ob" onclick="chk(this,'C4_23')">Plataformas digitales</div>
+            <div class="ob" onclick="chk(this,'C4_24')">Autoestudio</div>
+            <div class="ob" onclick="chk(this,'C4_25')">Centro cultural</div>
+            <div class="ob" onclick="chk(this,'C4_26')">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C5 OTRO 1 -->
+    <div class="icard" id="card-C5">
+      <div class="ihead" onclick="toggleIdioma('C5')">
+        <div class="ichk" id="chk-C5"></div>
+        <span class="iname">Otro idioma 1</span>
+        <span class="icodes">C.5 · C.5.1 · C.5.2.1–6</span>
+      </div>
+      <div class="ibody" id="body-C5">
+        <div class="irow">
+          <div class="irow-lbl">Nombre del idioma</div>
+          <input type="text" id="C5nom" placeholder="Especificar..." style="max-width:280px" oninput="upperCase(this);updateProg()">
+        </div>
+        <div class="irow">
+          <div class="irow-lbl">C.5.1 — Nivel</div>
+          <div class="opts" id="C5niv">
+            <div class="ob" onclick="radio('C5niv',this,1)">Básico</div>
+            <div class="ob" onclick="radio('C5niv',this,2)">Intermedio</div>
+            <div class="ob" onclick="radio('C5niv',this,3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="irow">
+          <div class="irow-lbl">C.5.2 — Lugar</div>
+          <div class="opts">
+            <div class="ob" onclick="chk(this,'C5_21')">Instituto privado</div>
+            <div class="ob" onclick="chk(this,'C5_22')">Facultad</div>
+            <div class="ob" onclick="chk(this,'C5_23')">Plataformas digitales</div>
+            <div class="ob" onclick="chk(this,'C5_24')">Autoestudio</div>
+            <div class="ob" onclick="chk(this,'C5_25')">Centro cultural</div>
+            <div class="ob" onclick="chk(this,'C5_26')">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C6 OTRO 2 -->
+    <div class="icard" id="card-C6">
+      <div class="ihead" onclick="toggleIdioma('C6')">
+        <div class="ichk" id="chk-C6"></div>
+        <span class="iname">Otro idioma 2</span>
+        <span class="icodes">C.6 · C.6.1 · C.6.2.1–6</span>
+      </div>
+      <div class="ibody" id="body-C6">
+        <div class="irow">
+          <div class="irow-lbl">Nombre del idioma</div>
+          <input type="text" id="C6nom" placeholder="Especificar..." style="max-width:280px" oninput="upperCase(this);updateProg()">
+        </div>
+        <div class="irow">
+          <div class="irow-lbl">C.6.1 — Nivel</div>
+          <div class="opts" id="C6niv">
+            <div class="ob" onclick="radio('C6niv',this,1)">Básico</div>
+            <div class="ob" onclick="radio('C6niv',this,2)">Intermedio</div>
+            <div class="ob" onclick="radio('C6niv',this,3)">Avanzado</div>
+          </div>
+        </div>
+        <div class="irow">
+          <div class="irow-lbl">C.6.2 — Lugar</div>
+          <div class="opts">
+            <div class="ob" onclick="chk(this,'C6_21')">Instituto privado</div>
+            <div class="ob" onclick="chk(this,'C6_22')">Facultad</div>
+            <div class="ob" onclick="chk(this,'C6_23')">Plataformas digitales</div>
+            <div class="ob" onclick="chk(this,'C6_24')">Autoestudio</div>
+            <div class="ob" onclick="chk(this,'C6_25')">Centro cultural</div>
+            <div class="ob" onclick="chk(this,'C6_26')">Clases particulares</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D -->
+  <div class="section">
+    <div class="section-label">Sección D — Estudio actual (P.14)</div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-code">D.1</span> ¿Actualmente estás estudiando algún idioma extranjero?</div>
+      <div class="opts" id="D1">
+        <div class="ob" onclick="radio('D1',this,1);showCond('D1si','D1no')">Sí</div>
+        <div class="ob" onclick="radio('D1',this,2);showCond('D1no','D1si')">No</div>
+      </div>
+    </div>
+
+    <div class="cond" id="D1si">
+      <div class="field-label" style="margin-bottom:10px"><span class="field-code">D.1.1</span> Si respondiste SÍ, ¿cuál es tu motivo principal? <span class="field-note">(puede marcar más de una)</span></div>
+      <div class="opts">
+        <div class="ob" onclick="chk(this,'D11_1')">Conseguir empleo</div>
+        <div class="ob" onclick="chk(this,'D11_2')">Requisito académico</div>
+        <div class="ob" onclick="chk(this,'D11_3')">Becas o intercambios</div>
+        <div class="ob" onclick="chk(this,'D11_4')">Interés personal</div>
+        <div class="ob" onclick="chk(this,'D11_5');toggleOtro('D115t',this)">Otro</div>
+      </div>
+      <input type="text" class="otro-input" id="D115t" placeholder="Especificar motivo..." oninput="upperCase(this);updateProg()">
+    </div>
+
+    <div class="cond" id="D1no">
+      <div class="field-label" style="margin-bottom:10px"><span class="field-code">D.1.2</span> Si respondiste NO, ¿por qué no estás estudiando uno actualmente? <span class="field-note">(puede marcar más de una)</span></div>
+      <div class="opts">
+        <div class="ob" onclick="chk(this,'D12_1')">Falta de tiempo</div>
+        <div class="ob" onclick="chk(this,'D12_2')">Costo elevado</div>
+        <div class="ob" onclick="chk(this,'D12_3')">No lo considero importante</div>
+        <div class="ob" onclick="chk(this,'D12_4')">Ya tengo el nivel necesario</div>
+        <div class="ob" onclick="chk(this,'D12_5');toggleOtro('D125t',this)">Otro</div>
+      </div>
+      <input type="text" class="otro-input" id="D125t" placeholder="Especificar motivo..." oninput="upperCase(this);updateProg()">
+    </div>
+  </div>
+</div>
+
+<div class="submit-bar">
+  <button class="btn-reset" onclick="confirmReset()">↺ Limpiar</button>
+  <div class="submit-info" id="sub-info">Completá los campos obligatorios</div>
+  <button class="btn-submit" id="btn-sub" onclick="submitForm()">GUARDAR →</button>
+</div>
+
+<script>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────────
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzGVkuibhjnnsWQ-YKpugPk1EBJN0iyteBObAMkGqQo66A1y_d692SUG_vl0X2PWDco/exec';
+
+// ── STATE ────────────────────────────────────────────────────────
+const R = {};
+const C = {};
+const ID = {C1:false,C2:false,C3:false,C4:false,C5:false,C6:false};
+let modoFijo = false; // false = AUTO (desde+contador), true = FIJO (número exacto)
+
+// ── MODO AUTO / FIJO ─────────────────────────────────────────────
+function toggleModo() {
+  modoFijo = !modoFijo;
+  const btn = document.getElementById('btn-modo');
+  const lbl = document.getElementById('modo-lbl');
+  const lblBadge = document.getElementById('badge-lbl');
+  if (modoFijo) {
+    btn.textContent = 'FIJO';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+    lbl.textContent = 'N° EXACTO';
+    lblBadge.textContent = 'A CARGAR';
+    document.getElementById('inp-desde').placeholder = 'Ej: 355';
+  } else {
+    btn.textContent = 'AUTO';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--muted)';
+    lbl.textContent = 'DESDE N°';
+    lblBadge.textContent = 'PRÓXIMA';
+    document.getElementById('inp-desde').placeholder = '';
+  }
+  updateInfo();
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function radio(grp, el, val) {
+  document.querySelectorAll(`#${grp} .ob, #${grp} .sb`).forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  R[grp] = val;
+  updateProg();
+}
+function chk(el, key) {
+  el.classList.toggle('sel');
+  C[key] = el.classList.contains('sel') ? 1 : 0;
+  updateProg();
+}
+function toggleOtro(inputId, el) {
+  const inp = document.getElementById(inputId);
+  const show = el.classList.contains('sel');
+  inp.className = 'otro-input' + (show ? ' vis' : '');
+  if (!show) inp.value = '';
+  updateProg();
+}
+function showCond(showId, hideId) {
+  document.getElementById(showId).className = 'cond vis';
+  document.getElementById(hideId).className = 'cond';
+}
+function upperCase(inp) { inp.value = inp.value.toUpperCase(); }
+function valNum(inp, min, max, errId) {
+  const v = parseFloat(inp.value), err = document.getElementById(errId);
+  if (inp.value && (isNaN(v)||v<min||v>max)) { err.style.display='block'; inp.style.borderColor='var(--error)'; }
+  else { err.style.display='none'; inp.style.borderColor=''; }
+}
+function toggleIdioma(id) {
+  const on = ID[id] = !ID[id];
+  document.getElementById(`chk-${id}`).className = 'ichk'+(on?' on':'');
+  document.getElementById(`body-${id}`).className = 'ibody'+(on?' vis':'');
+  document.getElementById(`card-${id}`).className = 'icard'+(on?' active':'');
+  if (!on) {
+    const niv = id+'niv';
+    document.querySelectorAll(`#${niv} .ob`).forEach(b=>b.classList.remove('sel'));
+    delete R[niv];
+    [`${id}_21`,`${id}_22`,`${id}_23`,`${id}_24`,`${id}_25`,`${id}_26`].forEach(k=>{ C[k]=0; });
+    document.querySelectorAll(`#body-${id} .ob.sel`).forEach(b=>b.classList.remove('sel'));
+    if (id==='C5'||id==='C6') { const n=document.getElementById(id+'nom'); if(n) n.value=''; }
+  }
+  updateProg();
+}
+
+// ── PROGRESS ─────────────────────────────────────────────────────
+function updateProg() {
+  const reqs = ['A1','A2','A3','A4','A5','A6','B1','B3','B4','D1'];
+  let filled = 0;
+  reqs.forEach(f => {
+    if (R[f]!==undefined) filled++;
+    else if (f==='A2'&&document.getElementById('A2').value) filled++;
+    else if (f==='A3'&&document.getElementById('A3').value) filled++;
+    else if (f==='A6'&&document.getElementById('A6').value) filled++;
+  });
+  const pct = Math.round(filled/reqs.length*100);
+  document.getElementById('prog').style.width = pct+'%';
+  updateInfo();
+}
+
+function updateInfo() {
+  const desde = parseInt(document.getElementById('inp-desde').value)||1;
+  const nombre = document.getElementById('inp-nombre').value.trim();
+
+  let prox;
+  if (modoFijo) {
+    prox = desde; // en modo fijo, el badge muestra exactamente lo que escribís
+  } else {
+    const used = getLocal().length;
+    prox = desde + used;
+  }
+
+  document.getElementById('badge').textContent = '#'+String(prox).padStart(3,'0');
+  document.getElementById('sub-info').textContent =
+    (nombre ? nombre+' · ' : '') + (modoFijo ? `Cargando N° ${prox} (fijo)` : `Próxima encuesta: N° ${prox}`);
+}
+
+// ── COLLECT DATA ─────────────────────────────────────────────────
+function collect() {
+  const g = k => R[k]!==undefined ? R[k] : '';
+  const t = id => { const el=document.getElementById(id); return el ? el.value.toUpperCase().trim() : ''; };
+  const ck = k => C[k]||0;
+
+  return {
+    'N°':        '',
+    'A.1':       g('A1'),
+    'A.2':       document.getElementById('A2').value,
+    'A.3':       document.getElementById('A3').value,
+    'A.4':       g('A4'),
+    'A.5':       g('A5'),
+    'A.6':       document.getElementById('A6').value,
+    'B.1':       g('B1'),
+    'B.2.1':     ck('B2_1'), 'B.2.2': ck('B2_2'), 'B.2.3': ck('B2_3'), 'B.2.4': ck('B2_4'), 'B.2.5': ck('B2_5'),
+    'B.3':       g('B3'),
+    'B.4':       g('B4'),
+    'B.5.1':     ck('B5_1'), 'B.5.2': ck('B5_2'), 'B.5.3': ck('B5_3'), 'B.5.4': ck('B5_4'), 'B.5.5': ck('B5_5'),
+    'B.5.5.T':   t('B55t'),
+    'B.6.1':     ck('B6_1'), 'B.6.2': ck('B6_2'), 'B.6.3': ck('B6_3'), 'B.6.4': ck('B6_4'), 'B.6.5': ck('B6_5'),
+    'B.6.5.T':   t('B65t'),
+    'C.1':       ID.C1?1:0,
+    'C.1.1':     ID.C1?g('C1niv'):'',
+    'C.1.2.1':   ID.C1?ck('C1_21'):0, 'C.1.2.2': ID.C1?ck('C1_22'):0, 'C.1.2.3': ID.C1?ck('C1_23'):0,
+    'C.1.2.4':   ID.C1?ck('C1_24'):0, 'C.1.2.5': ID.C1?ck('C1_25'):0, 'C.1.2.6': ID.C1?ck('C1_26'):0,
+    'C.2':       ID.C2?1:0,
+    'C.2.1':     ID.C2?g('C2niv'):'',
+    'C.2.2.1':   ID.C2?ck('C2_21'):0, 'C.2.2.2': ID.C2?ck('C2_22'):0, 'C.2.2.3': ID.C2?ck('C2_23'):0,
+    'C.2.2.4':   ID.C2?ck('C2_24'):0, 'C.2.2.5': ID.C2?ck('C2_25'):0, 'C.2.2.6': ID.C2?ck('C2_26'):0,
+    'C.3':       ID.C3?1:0,
+    'C.3.1':     ID.C3?g('C3niv'):'',
+    'C.3.2.1':   ID.C3?ck('C3_21'):0, 'C.3.2.2': ID.C3?ck('C3_22'):0, 'C.3.2.3': ID.C3?ck('C3_23'):0,
+    'C.3.2.4':   ID.C3?ck('C3_24'):0, 'C.3.2.5': ID.C3?ck('C3_25'):0, 'C.3.2.6': ID.C3?ck('C3_26'):0,
+    'C.4':       ID.C4?1:0,
+    'C.4.1':     ID.C4?g('C4niv'):'',
+    'C.4.2.1':   ID.C4?ck('C4_21'):0, 'C.4.2.2': ID.C4?ck('C4_22'):0, 'C.4.2.3': ID.C4?ck('C4_23'):0,
+    'C.4.2.4':   ID.C4?ck('C4_24'):0, 'C.4.2.5': ID.C4?ck('C4_25'):0, 'C.4.2.6': ID.C4?ck('C4_26'):0,
+    'C.5':       ID.C5?1:0,
+    'C.5.1':     ID.C5?g('C5niv'):'',
+    'C.5.2.1':   ID.C5?ck('C5_21'):0, 'C.5.2.2': ID.C5?ck('C5_22'):0, 'C.5.2.3': ID.C5?ck('C5_23'):0,
+    'C.5.2.4':   ID.C5?ck('C5_24'):0, 'C.5.2.5': ID.C5?ck('C5_25'):0, 'C.5.2.6': ID.C5?ck('C5_26'):0,
+    'C.6':       ID.C6?1:0,
+    'C.6.1':     ID.C6?g('C6niv'):'',
+    'C.6.2.1':   ID.C6?ck('C6_21'):0, 'C.6.2.2': ID.C6?ck('C6_22'):0, 'C.6.2.3': ID.C6?ck('C6_23'):0,
+    'C.6.2.4':   ID.C6?ck('C6_24'):0, 'C.6.2.5': ID.C6?ck('C6_25'):0, 'C.6.2.6': ID.C6?ck('C6_26'):0,
+    'D.1':       g('D1'),
+    'D.1.1.1':   g('D1')==1?ck('D11_1'):0, 'D.1.1.2': g('D1')==1?ck('D11_2'):0,
+    'D.1.1.3':   g('D1')==1?ck('D11_3'):0, 'D.1.1.4': g('D1')==1?ck('D11_4'):0,
+    'D.1.1.5':   g('D1')==1?ck('D11_5'):0,
+    'D.1.1.5.T': g('D1')==1?t('D115t'):'',
+    'D.1.2.1':   g('D1')==2?ck('D12_1'):0, 'D.1.2.2': g('D1')==2?ck('D12_2'):0,
+    'D.1.2.3':   g('D1')==2?ck('D12_3'):0, 'D.1.2.4': g('D1')==2?ck('D12_4'):0,
+    'D.1.2.5':   g('D1')==2?ck('D12_5'):0,
+    'Nombre':    document.getElementById('inp-nombre').value.toUpperCase().trim(),
+    'Tiempo':    new Date().toISOString()
+  };
+}
+
+// ── LOCAL STORAGE ────────────────────────────────────────────────
+function getLocal() { try { return JSON.parse(localStorage.getItem('fdd_enc')||'[]'); } catch { return []; } }
+function setLocal(arr) { localStorage.setItem('fdd_enc', JSON.stringify(arr)); }
+
+function saveLocal(row) {
+  const desde = parseInt(document.getElementById('inp-desde').value)||1;
+  let num;
+  if (modoFijo) {
+    num = desde;
+  } else {
+    num = desde + getLocal().length;
+  }
+
+  const all = getLocal();
+  const existIdx = all.findIndex(r => r['N°'] === num);
+
+  if (existIdx !== -1) {
+    // En modo fijo, preguntamos si sobreescribir
+    if (modoFijo) {
+      if (!confirm(`⚠ N° ${num} ya está en el registro local.\n¿Querés REEMPLAZARLO con la nueva carga?\n\n(Esto también lo reemplazará en Sheets)`)) {
+        return null;
+      }
+      row['N°'] = num;
+      row._replace = true;
+      all[existIdx] = row;
+      setLocal(all);
+      return { num, replace: true };
+    }
+    showToast(`⚠ N°${num} ya cargado en este dispositivo`,'err');
+    return null;
+  }
+
+  row['N°'] = num;
+  all.push(row);
+  setLocal(all);
+  return { num, replace: false };
+}
+
+// ── SUBMIT ───────────────────────────────────────────────────────
+async function submitForm() {
+  const btn = document.getElementById('btn-sub');
+  btn.disabled = true; btn.textContent = 'GUARDANDO...';
+  const data = collect();
+  const result = saveLocal({...data});
+  if (result === null) { btn.disabled=false; btn.textContent='GUARDAR →'; return; }
+
+  const { num, replace } = result;
+  data['N°'] = num;
+  if (replace) data._replace = true;
+
+  if (SHEETS_URL) {
+    try {
+      await fetch(SHEETS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+      showToast(replace ? `✓ N°${num} REEMPLAZADO en Sheets` : `✓ Encuesta N°${num} guardada en Sheets`,'ok');
+    } catch { showToast(`✓ N°${num} guardada localmente`,'ok'); }
+  } else {
+    showToast(`✓ Encuesta N°${num} guardada`,'ok');
+  }
+
+  const msgAlerta = replace
+    ? `✓ Encuesta N° ${num} REEMPLAZADA correctamente.\n\nVerificá que la hoja física tenga el número ${num}.`
+    : `✓ Encuesta guardada como N° ${num}\n\nEscribí el número ${num} en la hoja física.\n\nPróxima: N° ${num+1}`;
+
+  setTimeout(()=>{ alert(msgAlerta); resetForm(); },400);
+  btn.disabled=false; btn.textContent='GUARDAR →';
+}
+
+// ── RESET FORM ────────────────────────────────────────────────────
+function confirmReset() { if(confirm('¿Limpiar todos los campos?')) resetForm(); }
+function resetForm() {
+  Object.keys(R).forEach(k=>delete R[k]);
+  Object.keys(C).forEach(k=>C[k]=0);
+  Object.keys(ID).forEach(k=>{ ID[k]=false; });
+  document.querySelectorAll('.ob.sel,.sb.sel').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('input[type=text],input[type=number]').forEach(i=>{ if(!['inp-nombre','inp-desde'].includes(i.id)) i.value=''; });
+  document.querySelectorAll('.otro-input').forEach(i=>i.className='otro-input');
+  document.querySelectorAll('.cond').forEach(b=>b.className='cond');
+  ['C1','C2','C3','C4','C5','C6'].forEach(id=>{
+    document.getElementById(`chk-${id}`).className='ichk';
+    document.getElementById(`body-${id}`).className='ibody';
+    document.getElementById(`card-${id}`).className='icard';
+  });
+  updateProg();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── RESET CONTADOR ────────────────────────────────────────────────
+function resetContador() {
+  const all = getLocal();
+  if (all.length === 0) { alert('No hay encuestas en el registro local.'); return; }
+  if (!confirm(`⚠ ¿Borrar TODO el registro local?\n\nEsto borra ${all.length} encuesta(s) del contador de ESTE dispositivo.\nNO elimina datos de Google Sheets.\n\nUsar solo si ya borraste manualmente en Sheets y querés empezar de cero.`)) return;
+  localStorage.removeItem('fdd_enc');
+  showToast('✓ Contador local reseteado','ok');
+  updateInfo();
+  closeGestion();
+}
+
+// ── GESTIÓN MODAL ─────────────────────────────────────────────────
+function openGestion() {
+  renderGestion();
+  document.getElementById('modal-gestion').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function closeGestion() {
+  document.getElementById('modal-gestion').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function renderGestion() {
+  const all = getLocal();
+  const body = document.getElementById('gestion-body');
+  const footer = document.getElementById('gestion-footer');
+
+  footer.textContent = `Total en registro local: ${all.length} encuesta(s)`;
+
+  if (all.length === 0) {
+    body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">SIN ENCUESTAS REGISTRADAS</div>`;
+    return;
+  }
+
+  const sorted = [...all].sort((a,b) => a['N°'] - b['N°']);
+
+  body.innerHTML = `
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px;padding:0 4px">
+      Podés borrar encuestas individuales. Eso crea un hueco que podés rellenar después usando <span style="color:var(--accent)">MODO FIJO</span>.
+    </div>
+    <div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:1px;background:var(--border);border-radius:6px;overflow:hidden">
+      <div style="background:var(--surface2);padding:8px 12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">N°</div>
+      <div style="background:var(--surface2);padding:8px 12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">ENCUESTADOR · HORA</div>
+      <div style="background:var(--surface2);padding:8px 12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">SHEETS</div>
+      <div style="background:var(--surface2);padding:8px 12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">ACCIÓN</div>
+      ${sorted.map(r => {
+        const hora = r['Tiempo'] ? new Date(r['Tiempo']).toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit'}) : '—';
+        const fecha = r['Tiempo'] ? new Date(r['Tiempo']).toLocaleDateString('es-PY',{day:'2-digit',month:'2-digit'}) : '';
+        const nombre = r['Nombre'] || '—';
+        const carrera = ['','LEL','LCA','LGH','LCI','LCIK','IIN','IEK','IEL','IMK','ISP','ICM','IAE','IEN'][r['A.1']] || '';
+        return `
+          <div style="background:var(--surface);padding:9px 12px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)">#${String(r['N°']).padStart(3,'0')}</div>
+          <div style="background:var(--surface);padding:9px 12px;font-size:12px;color:var(--text)">${nombre} ${carrera?'· '+carrera:''}<br><span style="font-size:10px;color:var(--muted)">${fecha} ${hora}</span></div>
+          <div style="background:var(--surface);padding:9px 12px;display:flex;align-items:center">
+            <button onclick="reenviarSheets(${r['N°']})" title="Reenviar a Google Sheets" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">↑</button>
+          </div>
+          <div style="background:var(--surface);padding:9px 12px;display:flex;align-items:center">
+            <button onclick="borrarEncuesta(${r['N°']})" title="Borrar esta encuesta" style="background:transparent;border:1px solid var(--border);color:var(--error);padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-family:'Space Mono',monospace" onmouseover="this.style.background='rgba(255,82,82,.1)';this.style.borderColor='var(--error)'" onmouseout="this.style.background='transparent';this.style.borderColor='var(--border)'">✕</button>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+async function borrarEncuesta(num) {
+  if (!confirm(`¿Borrar la encuesta N° ${num} del registro local?\n\nSi está en Google Sheets, también se borrará de allá.`)) return;
+
+  // Borrar localmente
+  const all = getLocal().filter(r => r['N°'] !== num);
+  setLocal(all);
+
+  // Borrar en Sheets
+  if (SHEETS_URL) {
+    try {
+      await fetch(SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ 'N°': num, _action: 'delete' })
+      });
+      showToast(`✓ N°${num} borrado de Sheets`, 'ok');
+    } catch {
+      showToast(`N°${num} borrado localmente (Sheets sin conexión)`, 'ok');
+    }
+  } else {
+    showToast(`✓ N°${num} borrado del registro local`, 'ok');
+  }
+
+  renderGestion();
+  updateInfo();
+}
+
+async function reenviarSheets(num) {
+  const all = getLocal();
+  const row = all.find(r => r['N°'] === num);
+  if (!row) { showToast('No encontrado en local','err'); return; }
+  if (!SHEETS_URL) { showToast('Sin URL de Sheets configurada','err'); return; }
+  try {
+    const data = {...row, _replace: true};
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    showToast(`↑ N°${num} reenviado a Sheets`, 'ok');
+  } catch {
+    showToast(`Error al reenviar N°${num}`, 'err');
+  }
+}
+
+// ── TOAST ────────────────────────────────────────────────────────
+function showToast(msg,type) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.className='toast',3500);
+}
+
+// Cerrar modal al hacer click fuera
+document.getElementById('modal-gestion').addEventListener('click', function(e) {
+  if (e.target === this) closeGestion();
+});
+
+// Init
+updateInfo();
+</script>
+</body>
+</html>
